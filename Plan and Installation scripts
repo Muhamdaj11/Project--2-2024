@@ -1,4 +1,8 @@
 
+Create a terraform file to provision 3 ec2 instances (servers) in us-west-2 (Jenkins, Terraform and Maven-Sonar) and create the 3 ec2 instances
+
+Configure the new AWS credentials on the terminal mapped to the us-west-2 region by creating Access Key and Secret acess key
+
 Create the 3 servers and install necessary applications/packages using user data on the servers
 
 Set up the Jenkins UI and create Terraform and Maven-Sonar as nodes/agents and establish ssh connections for Jenkins as well as remoting working directory
@@ -32,6 +36,13 @@ sudo yum install unzip
 sudo unzip terraform_1.8.2_linux_386.zip 
 sudo mv terraform /usr/local/bin/
 terraform --version
+
+
+sudo yum install java-17-amazon-corretto-devel
+java -version
+sudo yum install -y yum-utils shadow-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+sudo yum -y install terraform
 
 
 
@@ -101,3 +112,56 @@ sudo postgresql-setup initdb
 sudo systemctl start postgresql
 sudo systemctl enable postgresql
 sudo systemctl status postgresql
+
+
+
+
+Adding agent/slave nodes to Jenkins UI
+
+
+SSH connection (using keys)
+===========================
+
+User with sudo privilege (sonar)
+================================
+
+Generate ssh keys as a user with sudo privilege, create an authorized_keys file and add the public key into the file
+Copy the private key into Jenkins credentials for the node where the user is.
+ 
+Permisssions to keys
+
+change permission for both the .ssh folder and authorized_keys file (chmod 700 . ssh and chmod 600 authorized_keys)
+
+
+N:B:
+====
+
+sonar user owns the /opt/sonarqube directory
+
+
+User with no sudo privilege (terraform)
+=======================================
+
+Generate ssh keys as a user with no sudo privilege, copy the public key, vi into the authorized_keys file and add the public key
+Copy the private key into Jenkins credentials for the node where the user is.
+ 
+Permisssions to keys
+
+change permission for both the .ssh folder and authorized_keys file (chmod 700 . ssh and chmod 600 authorized_keys)
+
+
+Extra:
+======
+
+Change ownership of the /opt/terraform directory that was created from root to ec2-user (with write permission)
+sudo chown ec2-user:ec2-user terraform
+
+
+
+
+
+
+
+
+
+

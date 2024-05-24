@@ -1,0 +1,103 @@
+
+Create the 3 servers and install necessary applications/packages using user data on the servers
+
+Set up the Jenkins UI and create Terraform and Maven-Sonar as nodes/agents and establish ssh connections for Jenkins as well as remoting working directory
+
+Set up enviromental variables and working directory for Maven, edit settings.xml file in maven to integrate Sonarqube
+
+Create user in Sonarqube and set up Sonarqube UI
+
+Clone the project repository into Maven server to build and run unit testing
+
+
+Terraform
+=========
+
+#!/bin/bash
+# Install required packages
+sudo yum update -y
+sudo yum install -y wget unzip
+# Download Terraform
+TERRAFORM_VERSION="1.8.4" 
+wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+# Install Terraform
+sudo unzip terraform_1.8.4_linux_amd64.zip 
+sudo mv terraform /usr/local/bin/
+# Verify installation
+terraform --version
+
+
+sudo wget https://releases.hashicorp.com/terraform/1.8.2/terraform_1.8.2_linux_386.zip
+sudo yum install unzip
+sudo unzip terraform_1.8.2_linux_386.zip 
+sudo mv terraform /usr/local/bin/
+terraform --version
+
+
+
+Java and Jenkins
+================
+
+sudo yum update -y
+sudo amazon-linux-extras install java-openjdk11 -y
+sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat/jenkins.repo
+sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key
+sudo yum install jenkins -y
+sudo systemctl start Jenkins
+sudo systemctl enable Jenkins
+sudo firewall-cmd --permanent --zone=public --add-port=8080/tcp
+sudo firewall-cmd --reload
+echo "Jenkins is installed. You can access it at http://<your-server-ip>:8080"
+echo "Initial Admin Password:"
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+
+Maven
+=====
+
+#Step1) Download the Maven Software
+sudo wget https://dlcdn.apache.org/maven/maven-3/3.9.6/binaries/apache-maven-3.9.6-bin.zip
+sudo unzip apache-maven-3.9.6-bin.zip
+sudo rm -rf apache-maven-3.9.6-bin.zip
+sudo mv apache-maven-3.9.6/ maven
+vi ~/.bash_profile  # and add the lines below
+export M2_HOME=/opt/maven
+export PATH=$PATH:$M2_HOME/bin
+source ~/.bash_profile
+mvn -version
+
+
+Sonarqube
+=========
+
+sudo useradd sonar
+sudo echo "sonar ALL=(ALL) NOPASSWD:ALL" | sudo tee /etc/sudoers.d/sonar
+sudo passwd sonar
+sudo sed -i "/^[^#]*PasswordAuthentication[[:space:]]no/c\PasswordAuthentication yes" /etc/ssh/sshd_config
+sudo service sshd restart
+sudo su - sonar
+cd /opt
+sudo yum -y install unzip wget git
+sudo yum install  java-11-openjdk-devel
+sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-7.8.zip
+sudo unzip sonarqube-7.8.zip
+sudo rm -rf sonarqube-7.8.zip
+sudo mv sonarqube-7.8 sonarqube
+sudo chown -R sonar:sonar /opt/sonarqube/
+sudo chmod -R 775 /opt/sonarqube/
+sh /opt/sonarqube/bin/linux-x86-64/sonar.sh start 
+sh /opt/sonarqube/bin/linux-x86-64/sonar.sh status
+
+default USERNAME: admin
+default password: admin
+
+
+Postgressql
+===========
+
+sudo yum update -y
+sudo yum install postgresql-server -y
+sudo postgresql-setup initdb
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
+sudo systemctl status postgresql

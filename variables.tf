@@ -1,10 +1,19 @@
-#resource block
-resource "aws_instance" "my_ec2" {
-  ami           = data.aws_ami.amzlinux2
-  instance_type = var.my_instance_type
-  key_name      = var.my_key
+variable "aws_region" {
+  type    = string
+  default = "us-west-1"
+}
 
-  tags = {
-    "Name" = "Ec2-Demo"
-  }
+variable "my_ami" {
+  type    = string
+  default = "ami-0e0bf4b3a0c0e0adc"
+}
+
+variable "my_instance_type" {
+  type    = string
+  default = "t2.medium"
+}
+
+variable "my_key" {
+  type    = string
+  default = "Automationkey"
 }

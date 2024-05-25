@@ -1,10 +1,10 @@
-data "aws_ami" "amzlinux4" {
+data "aws_ami" "amzlinux2" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["amzn3-ami-hvm-*-gp2"]
+    values = ["amzn2-ami-hvm-*-gp2"]
   }
 
   filter {
@@ -16,9 +16,9 @@ data "aws_ami" "amzlinux4" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+
   filter {
     name   = "architecture"
     values = ["x86_64"]
   }
-
 }
